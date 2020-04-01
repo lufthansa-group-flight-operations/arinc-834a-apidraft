@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
+    <device id="retina4_7" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="EHf-IW-A2E">
+            <objects>
+                <viewController id="01J-lp-oVM" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Ze5-6b-2t3">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="crane" translatesAutoresizingMaskIntoConstraints="NO" id="P2e-DQ-6Lf">
+                                <rect key="frame" x="97.5" y="243.5" width="180" height="180"/>
+                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="180" id="71x-l1-HbM"/>
+                                    <constraint firstAttribute="height" constant="180" id="cTF-fN-1Cc"/>
+                                </constraints>
+                            </imageView>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="wordmark" translatesAutoresizingMaskIntoConstraints="NO" id="qXO-Xz-1eL">
+                                <rect key="frame" x="37.5" y="431.5" width="300" height="111.5"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="300" id="yiu-xj-4YF"/>
+                                </constraints>
+                            </imageView>
+                        </subviews>
+                        <color key="backgroundColor" red="0.018621575342465755" green="0.088153353125958095" blue="0.29922945205479451" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                        <constraints>
+                            <constraint firstItem="P2e-DQ-6Lf" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="35f-XR-Kbp"/>
+                            <constraint firstItem="P2e-DQ-6Lf" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="C3n-y7-8ke"/>
+                            <constraint firstItem="qXO-Xz-1eL" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="YY7-SM-O2t"/>
+                            <constraint firstItem="qXO-Xz-1eL" firstAttribute="top" secondItem="P2e-DQ-6Lf" secondAttribute="bottom" constant="8" id="wmb-gn-kgv"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="iYj-Kq-Ea1" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="52" y="374.66266866566718"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="crane" width="459" height="459"/>
+        <image name="wordmark" width="1467" height="111.66666412353516"/>
+    </resources>
+</document>
