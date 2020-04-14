@@ -1,0 +1,105 @@
+﻿<!DOCTYPE HTML>
+
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+
+<script type="text/javascript">
+
+    function WebsocketTimer() {
+        counter = 0;
+
+        if (!"WebSocket" in window) {
+            // The browser doesn't support WebSocket
+            console.log("WebSocket NOT supported by your Browser!");
+            return;
+        }
+
+        console.log("WebSocket is supported by your Browser!");
+
+        // Let us open a web socket
+        var ws = new WebSocket("wss://" + location.host + "/api/v1/parameters?keys=Date,TimeGMT,EGT1&interval=2000");
+
+        ws.onopen = function () {
+            console.log("Connection openend.");
+        };
+
+        ws.onmessage = function (evt) {
+            var received_msg = evt.data;
+            console.log("Rx: " + received_msg);
+
+            ++counter;
+
+            if (counter > 1000) {
+                ws.close();
+                return;
+            }
+
+            ws.send("Hello");
+            console.log("Tx: " + "Hello");
+        };
+
+        ws.onclose = function () {
+            console.log("Connection is closed...");
+        };
+
+        ws.onerror = function (ev) {
+            console.log("Websocket error:", ev.data);
+        }
+    }
+
+    function WebsocketEvent() {
+        counter = 0;
+
+        if (!"WebSocket" in window) {
+            // The browser doesn't support WebSocket
+            console.log("WebSocket NOT supported by your Browser!");
+            return;
+        }
+
+        console.log("WebSocket is supported by your Browser!");
+
+        // Let us open a web socket
+        var ws = new WebSocket("wss://" + location.host + "/api/v1/parameters?keys=Date,TimeGMT,EGT1");
+
+        ws.onopen = function () {
+            console.log("Connection openend.");
+        };
+
+        ws.onmessage = function (evt) {
+            var received_msg = evt.data;
+            console.log("Rx: " + received_msg);
+
+            ++counter;
+
+            if (counter > 1000) {
+                ws.close();
+                return;
+            }
+
+            ws.send("Hello");
+            console.log("Tx: " + "Hello");
+        };
+
+        ws.onclose = function () {
+            console.log("Connection is closed...");
+        };
+
+        ws.onerror = function (ev) {
+            console.log("Websocket error:", ev.data);
+        }
+    }
+
+</script>
+
+<body>
+    <div id="sse">
+        <a href="javascript:WebsocketTimer()">Run WebSocket Timer</a><br />
+        <a href="javascript:WebsocketEvent()">Run WebSocket Event</a>
+    </div>
+
+</body>
+
+</html>
