@@ -20,6 +20,7 @@ struct SubscriptionView: View {
             }            
             HStack {
                 TextField("wss://server:port",text: self.$serverAdress).background(Color.white.shadow(radius: 2)).foregroundColor(Color.black)
+                Text("/api/v1/parameters")
                 Button(action:{self.subscriptionService.connect(address: self.serverAdress)}){Text("Start")}
                 Button(action:{self.subscriptionService.disconnect()}){Text("Stop")}                
             }

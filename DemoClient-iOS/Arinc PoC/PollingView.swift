@@ -21,6 +21,7 @@ struct PollingView: View {
             }
             HStack {
                 TextField("https://server:port",text: self.$serverAdress).background(Color.white.shadow(radius: 2)).foregroundColor(Color.black)
+                Text("/api/v1/parameters")
                 Button(action:{self.pollingClient.startPolling(address: self.serverAdress, deltaT: 1.0)}){Text("Start")}
                 Button(action:{self.pollingClient.stopPolling()}){Text("Stop")}
             }

@@ -342,14 +342,14 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"Arinc PoC/Preview Content\"";
-				DEVELOPMENT_TEAM = 75SHSBH58G;
+				DEVELOPMENT_TEAM = Z23DFDVH6C;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = "Arinc PoC/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "DLH.Arinc-PoC";
+				PRODUCT_BUNDLE_IDENTIFIER = "DLH.DEV.AOST.MS.Arinc-PoC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -362,14 +362,14 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"Arinc PoC/Preview Content\"";
-				DEVELOPMENT_TEAM = 75SHSBH58G;
+				DEVELOPMENT_TEAM = Z23DFDVH6C;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = "Arinc PoC/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "DLH.Arinc-PoC";
+				PRODUCT_BUNDLE_IDENTIFIER = "DLH.DEV.AOST.MS.Arinc-PoC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

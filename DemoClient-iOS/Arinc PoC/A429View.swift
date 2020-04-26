@@ -22,6 +22,7 @@ struct A429View: View {
                 Text("A429 over WebSocket").font(.title)
                 HStack {
                     TextField("wss://server:port",text: self.$serverAddress).background(Color.white.shadow(radius: 2)).foregroundColor(Color.black)
+                    Text("/api/v1/stap")
                     Button(action:{self.a429Client.connect(address: self.serverAddress)}){Text("Start")}
                 }
                 HStack {

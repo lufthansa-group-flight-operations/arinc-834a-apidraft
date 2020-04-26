@@ -14,7 +14,7 @@ import Foundation
 class A429Service : NSObject, URLSessionWebSocketDelegate, ObservableObject {
     
     var socket: URLSessionWebSocketTask!
-    var history: String = ""
+    @Published var history: String = ""
     // Since we use self signed certificates in our environment, we have to auto accept them.
     func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         print("!!!!!!!!!!!!!!!!!!!!!UNSECURE / CERT NOT VALIDATED!!!!!!!!!!!!!!!!!!!")
@@ -22,7 +22,7 @@ class A429Service : NSObject, URLSessionWebSocketDelegate, ObservableObject {
     }
     
     func connect(address: String) {
-        socket = URLSession(configuration: .default, delegate: self, delegateQueue: nil).webSocketTask(with: URL(string:address)!)
+        socket = URLSession(configuration: .default, delegate: self, delegateQueue: nil).webSocketTask(with: URL(string:address + "/api/v1/stap")!)
         socket.resume()
         receive()        
     }
@@ -55,8 +55,11 @@ class A429Service : NSObject, URLSessionWebSocketDelegate, ObservableObject {
         
     func send(data: String) {
         self.history = self.history + "\n TX: " + data;
-        socket.send(URLSessionWebSocketTask.Message.string(data)) { error in
-            print("error")
+        let message = URLSessionWebSocketTask.Message.string("\(data)\r\n")
+        socket.send(message){error in
+            if let error = error {
+                print("WebSocket sending error: \(error)")
+            }
         }
     }
     
