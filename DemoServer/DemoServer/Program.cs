@@ -28,11 +28,8 @@ builder.Services.AddTransient<IWebSocketClientHandler, WebSocketClientHandler>()
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 // Create and define WebSocket options deviation from default
 var webSocketOptions = new WebSocketOptions
