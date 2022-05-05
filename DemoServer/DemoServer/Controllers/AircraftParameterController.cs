@@ -57,7 +57,7 @@ namespace DemoServer.Controllers
             // If none paramters are requested, just return a list of the known paramter names, and if they are settable.
             if (paramsRequest.Count == 0)
             {
-                return Ok(_avionicData.KnownParams);
+                return Ok(new AvionicParameters() { Parameters = _avionicData.KnownParams});
             }
 
             // By default supporting parameters requested as: /parameters?params={name}&params={name}&params={name}
