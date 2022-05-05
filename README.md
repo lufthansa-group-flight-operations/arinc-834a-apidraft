@@ -5,3 +5,7 @@
 
 
 This project contains demo applications and proof of concepts for the upcoming ARINC 834A standard.
+
+## Components
+### Demo Server
+The Demo server includes propposals, proof of comcept and  and state of discussion implemented interfaces. For more detailed info see: [DemoServer](DemoServer/README.md)
