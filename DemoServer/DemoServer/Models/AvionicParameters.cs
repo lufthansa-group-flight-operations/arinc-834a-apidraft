@@ -5,19 +5,18 @@
 // LICENSE file in the root directory of this source tree.
 //
 
-using System;
 using System.Text.Json.Serialization;
-using System.Xml.Serialization;
 
 namespace DemoServer.Models
 {
     [Serializable]
-    [XmlRoot("parameter_list")]
+    //[XmlRoot("parameter_list")]
     public class AvionicParameters
     {
         [JsonPropertyName("parameters")]
-        [XmlArray("parameters")]
-        [XmlArrayItem("parameter")]
         public AvionicParameter[] Parameters { get; set; }
+
+        [JsonPropertyName("unknownParameters")]
+        public string[]? UnknownParameters { get; set; }
     }
 }

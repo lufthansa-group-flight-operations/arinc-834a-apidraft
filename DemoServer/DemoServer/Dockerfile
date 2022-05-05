@@ -1,20 +1,22 @@
-FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-buster-slim AS base
+#See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
+
+FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
 WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
-COPY ["DemoServer/DemoServer.csproj", "DemoServer/"]
-RUN dotnet restore "DemoServer/DemoServer.csproj"
+COPY ["DemoServer (ARINC 834A Demo Server)/DemoServer (ARINC 834A Demo Server).csproj", "DemoServer (ARINC 834A Demo Server)/"]
+RUN dotnet restore "DemoServer (ARINC 834A Demo Server)/DemoServer (ARINC 834A Demo Server).csproj"
 COPY . .
-WORKDIR "/src/DemoServer"
-RUN dotnet build "DemoServer.csproj" -c Release -o /app
+WORKDIR "/src/DemoServer (ARINC 834A Demo Server)"
+RUN dotnet build "DemoServer (ARINC 834A Demo Server).csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "DemoServer.csproj" -c Release -o /app
+RUN dotnet publish "DemoServer (ARINC 834A Demo Server).csproj" -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
-COPY --from=publish /app .
-ENTRYPOINT ["dotnet", "DemoServer.dll", "--urls", "https://+:8443;http://+:8080"]
+COPY --from=publish /app/publish .
+ENTRYPOINT ["dotnet", "DemoServer (ARINC 834A Demo Server).dll"]

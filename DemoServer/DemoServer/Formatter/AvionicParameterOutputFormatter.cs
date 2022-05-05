@@ -49,7 +49,7 @@ namespace DemoServer.Formatter
         {
             foreach (var p in parameters.Parameters)
             {
-                buffer.AppendLine($"data,{p.Timestamp},{p.State},{p.Key},{p.Value}");
+                buffer.AppendLine($"data,{p.Timestamp},{p.Settable},{p.Name},{p.Value}");
             }
         }
     }

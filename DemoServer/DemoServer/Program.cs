@@ -1,81 +1,57 @@
-﻿//
-// Copyright (c) Deutsche Lufthansa AG.
-//
-// This source code is licensed under the MIT license found in the
-// LICENSE file in the root directory of this source tree.
-//
-
-using System;
 using DemoServer.DataAccess;
-using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+using DemoServer.Formatter;
+using DemoServer.Websocket;
+using System.Text.Json.Serialization;
 
-namespace DemoServer
-{
-    /// <summary>
-    /// Main program entry point.
-    /// </summary>
-    public class Program
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
+builder.Services.AddControllers(
+    opt =>
     {
-        /// <summary>
-        /// Main entry point.
-        /// </summary>
-        /// <param name="args">Command line arguments.</param>
-        public static void Main(string[] args)
-        {
-            var host = CreateWebHostBuilder(args).Build();
+        opt.RespectBrowserAcceptHeader = true;
+        opt.OutputFormatters.Insert(0, new AvionicParameterOutputFormatter());
+    })
+    .AddXmlSerializerFormatters()
+    .AddJsonOptions(options => options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull) ;
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
-            var logger = host.Services.GetRequiredService<ILogger<Program>>();
+//Add a single Data Source service to the Service Repository
+builder.Services.AddSingleton<IAvionicDataSource, AvionicDataSource>();
 
-            using (var scope = host.Services.CreateScope())
-            {
-                var services = scope.ServiceProvider;
+// Add a WebSocketClientHandler as a "Transient" Service to the Service Repository,
+// which means, that it delivers a separate Handler for each client.
+builder.Services.AddTransient<IWebSocketClientHandler, WebSocketClientHandler>();
 
-                try
-                {
-                    var context = services.GetRequiredService<DatabaseContext>();
-                    // context.Database.Migrate();
-                    context.Database.EnsureCreated();
-                    InitializeDatabase(services, logger);
-                }
-                catch (Exception ex)
-                {
-                    logger.LogError(ex, "Failed to initialize the Database.");
-                }
-            }
+var app = builder.Build();
 
-            host.Run();
-        }
-
-        /// <summary>
-        /// Gets a web host builder.
-        /// </summary>
-        /// <param name="args">Arguments to use.</param>
-        /// <returns>Created web host builder.</returns>
-        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>();
-
-        /// <summary>
-        /// Initializes the database.
-        /// </summary>
-        /// <param name="service">Service provider to use.</param>
-        /// <param name="logger">Logger to use.</param>
-        private static void InitializeDatabase(IServiceProvider service, ILogger logger)
-        {
-            using var context = new DatabaseContext(service.GetRequiredService<DbContextOptions<DatabaseContext>>());
-
-            // Look for any aircraft.
-            if (context.Messages.AnyAsync().Result)
-            {
-                logger.LogDebug("Database is already initialized.");
-                return;
-            }
-
-            logger.LogDebug("Initialize Database ...");
-        }
-    }
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
+
+// Create and define WebSocket options deviation from default
+var webSocketOptions = new WebSocketOptions
+{
+    KeepAliveInterval = TimeSpan.FromSeconds(5)    
+};
+
+// Add WebSocket functionality with above settings.
+app.UseWebSockets(webSocketOptions);
+
+// This allows to access the /Test.html
+app.UseStaticFiles();
+app.UseRouting();
+
+// May be required to disable behind reverse proxy
+app.UseHttpsRedirection();
+
+app.UseAuthorization();
+
+app.MapControllers();
+
+app.Run();

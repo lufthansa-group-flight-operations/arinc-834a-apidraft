@@ -12,20 +12,26 @@ namespace DemoServer.DataAccess
 {
     public interface IAvionicDataSource
     {
+        /// <summary>
+        /// Gets the known paramters names.
+        /// </summary>
+        AvionicParameter[] KnownParams { get; }
+
         void Subscribe(IWebSocketClientHandler clientHandler);
 
         void Unsubscribe(IWebSocketClientHandler clientHandler);
 
         /// <summary>
-        /// Adds a Websocket Client to the List of websocket Clients.
+        /// Gets all AvionicParameters.
         /// </summary>
         /// <returns>Array of avionic parameter.</returns>
         AvionicParameter[] GetParameters();
-
+        
         /// <summary>
-        /// Gets the parameter for HTTP requests.
+        /// Gets a single Paramter.
         /// </summary>
-        /// <returns>Array of avionic parameter infos.</returns>
-        AvionicParameterInfo[] GetParameterInfos();
+        /// <param name="paramName">Name of paramter.</param>
+        /// <returns>Return null if no matching parameter is found.</returns>
+        AvionicParameter? GetParameter(string paramName);
     }
 }

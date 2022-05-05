@@ -5,29 +5,27 @@
 // LICENSE file in the root directory of this source tree.
 //
 
-using System;
 using System.Text.Json.Serialization;
-using System.Xml.Serialization;
 
 namespace DemoServer.Models
 {
     [Serializable]
-    public class AvionicParameter
+    public record struct AvionicParameter
     {
-        [JsonPropertyName("k")]
-        [XmlAttribute("k")]
-        public string Key { get; set; }
+        [JsonPropertyName("name")]
+        //[XmlAttribute("name")]
+        public string Name { get; set; }
 
-        [JsonPropertyName("v")]
-        [XmlAttribute("v")]
-        public string Value { get; set; }
+        [JsonPropertyName("value")]
+        //[XmlAttribute("value")]
+        public object? Value { get; set; }
 
-        [JsonPropertyName("t")]
-        [XmlAttribute("t")]
-        public string Timestamp { get; set; }
+        [JsonPropertyName("timestamp")]
+        //[XmlAttribute("timestamp")]
+        public long? Timestamp { get; set; }
 
-        [JsonPropertyName("s")]
-        [XmlAttribute("s")]
-        public string State { get; set; }
+        [JsonPropertyName("settable")]
+        //[XmlAttribute("settable")]
+        public bool? Settable { get; set; }
     }
 }

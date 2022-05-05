@@ -8,11 +8,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Timers;
 using DemoServer.Controllers;
 using DemoServer.Models;
 using DemoServer.Websocket;
 using Microsoft.Extensions.Logging;
+using Timer = System.Timers.Timer;
 
 namespace DemoServer.DataAccess
 {
@@ -21,11 +23,12 @@ namespace DemoServer.DataAccess
         private readonly ILogger<AircraftParameterController> _logger;
         private readonly Timer _avcTimer;
         private readonly List<IWebSocketClientHandler> _webSocketClientList = new List<IWebSocketClientHandler>();
-        private readonly DateTime _unixTimeStart = new DateTime(1970, 1, 1);
-        private readonly List<AvionicParameterInfo> _infoList = new List<AvionicParameterInfo>();
+        private readonly DateTime _unixTimeStart = new DateTime(1970, 1, 1);        
         private readonly Dictionary<string, AvionicParameter> _parameters = new Dictionary<string, AvionicParameter>();
 
         private int pos = 0;
+
+        public AvionicParameter[] KnownParams { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AvionicDataSource"/> class.
@@ -62,16 +65,24 @@ namespace DemoServer.DataAccess
         }
 
         /// <inheritdoc />
+        public AvionicParameter? GetParameter(string paramName)
+        {
+            AvionicParameter result;            
+            if (_parameters.TryGetValue(paramName, out result))
+            {
+                return result;
+            }
+
+            return null;
+        }
+
+        /// <inheritdoc />
         public AvionicParameter[] GetParameters()
         {
             return _parameters.Values.ToArray();
         }
 
-        /// <inheritdoc />
-        public AvionicParameterInfo[] GetParameterInfos()
-        {
-            return _infoList.ToArray();
-        }
+        
 
         public void Dispose()
         {
@@ -81,76 +92,50 @@ namespace DemoServer.DataAccess
 
         private void Init()
         {
-            _infoList.AddRange(
-                new[]
-                {
-                    new AvionicParameterInfo
-                    {
-                        Key = "akey",
-                        Description = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod " +
-                                      "tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
-                        Type = "String",
-                        UnitOfMeasurement = ""
-                    },
-                    new AvionicParameterInfo
-                    {
-                        Key = "bkey",
-                        Description = "At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no " +
-                                      "sea takimata sanctus est Lorem ipsum dolor sit amet.",
-                        Type = "Number",
-                        UnitOfMeasurement = "kg"
-                    },
-                    new AvionicParameterInfo
-                    {
-                        Key = "ckey",
-                        Description = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor " +
-                                      "invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam " +
-                                      "et justo duo dolores et ea rebum.",
-                        Type = "Number",
-                        UnitOfMeasurement = "knots"
-                    },
-                    new AvionicParameterInfo
-                    {
-                        Key = "Date",
-                        Description = "Date as Defined in A834 Generic Aicraft Parameters.",
-                        Type = "String",
-                        UnitOfMeasurement = "DD:MM:YY"
-                    },
-                    new AvionicParameterInfo
-                    {
-                        Key = "TimeGMT",
-                        Description = "Time as Defined in A834 Generic Aicraft Parameters.",
-                        Type = "String",
-                        UnitOfMeasurement = "HH:MM:SS.SS"
-                    },
-                    new AvionicParameterInfo
-                    {
-                        Key = "EGT1",
-                        Description = "Representing RPI Board Temperature.",
-                        Type = "Number",
-                        UnitOfMeasurement = "°C"
-                    }
-                });
+            KnownParams = new[]
+            {
+                new AvionicParameter { Name = "airline_id", Settable = false},
+                new AvionicParameter { Name = "ac_icao24", Settable = false},
+                new AvionicParameter { Name = "ac_reg", Settable = false},
+                new AvionicParameter { Name = "ac_type", Settable = false},
+                new AvionicParameter { Name = "time_utc" , Settable = false},
+                new AvionicParameter { Name = "gnss_time_utc", Settable = false},
+                new AvionicParameter { Name = "date_utc", Settable = false},
+                new AvionicParameter { Name = "gnss_date_utc", Settable = false},
+                new AvionicParameter { Name = "origin", Settable = false},
+                new AvionicParameter { Name = "destination", Settable = false},
+                new AvionicParameter { Name = "dist_to_dest", Settable = false},
+                new AvionicParameter { Name = "dist_to_wypt", Settable = false},
+                new AvionicParameter { Name = "time_to_dest", Settable = false},
+                new AvionicParameter { Name = "time_to_waypt", Settable = false},
+                new AvionicParameter { Name = "flight_no", Settable = false},
+                new AvionicParameter { Name = "EGT1", Settable = false}
+            };
+
 
             var tempParams = new[]
             {
-                new AvionicParameter { Key = "akey", Value = "avalue", State = "1", Timestamp = "12312153213" },
-                new AvionicParameter { Key = "bkey", Value = "bvalue", State = "0", Timestamp = "17235463835" },
-                new AvionicParameter { Key = "ckey", Value = "cvalue", State = "3", Timestamp = "15684651325" },
-                new AvionicParameter { Key = "dkey", Value = "dvalue", State = "2", Timestamp = "15684651325" },
-                new AvionicParameter { Key = "ekey", Value = "evalue", State = "1", Timestamp = "15684651325" },
-                new AvionicParameter { Key = "fkey", Value = "fvalue", State = "1", Timestamp = "15684651325" },
-                new AvionicParameter { Key = "gkey", Value = "gvalue", State = "0", Timestamp = "15684651325" },
-                new AvionicParameter { Key = "hkey", Value = "hvalue", State = "2", Timestamp = "15684651325" },
-                new AvionicParameter { Key = "jkey", Value = "jvalue", State = "3", Timestamp = "15684651325" },
-                new AvionicParameter { Key = "Date", Value = "00:00:00", State = "0", Timestamp = "0" },
-                new AvionicParameter { Key = "TimeGMT", Value = "00:00:00.00", State = "0", Timestamp = "0" },
-                new AvionicParameter { Key = "EGT1", Value = "0", State = "0", Timestamp = "0" }
+                new AvionicParameter { Name = "airline_id", Value = "avalue", Timestamp = 12312153213 },
+                new AvionicParameter { Name = "ac_icao24", Value = "A0AB42", Timestamp = 17235463835 },
+                new AvionicParameter { Name = "ac_reg", Value = "N142MS", Timestamp = 15684651325 },
+                new AvionicParameter { Name = "ac_type", Value = "P28U", Timestamp = 15684651325 },
+                new AvionicParameter { Name = "time_utc", Value = "11:55:00", Timestamp = 15684651325 },
+                new AvionicParameter { Name = "gnss_time_utc", Value = "11:55:00", Timestamp = 15684651325 },
+                new AvionicParameter { Name = "date_utc", Value = "25.09.2021", Timestamp = 15684651325 },
+                new AvionicParameter { Name = "gnss_date_utc", Value = "25.09.2021", Timestamp = 15684651325 },
+                new AvionicParameter { Name = "origin", Value = "KMIA", Timestamp = 15684651325 },
+                new AvionicParameter { Name = "destination", Value = "KFMY", Timestamp = 15684651325 },
+                new AvionicParameter { Name = "dist_to_dest", Value = "120", Timestamp = 15684651325 },
+                new AvionicParameter { Name = "dist_to_wypt", Value = "20", Timestamp = 15684651325 },
+                new AvionicParameter { Name = "time_to_dest", Value = (int)60, Timestamp = 15684651325 },
+                new AvionicParameter { Name = "time_to_waypt", Value = "10", Timestamp = 15684651325 },
+                new AvionicParameter { Name = "flight_no", Value = "", Timestamp = 0 },
+                new AvionicParameter { Name = "EGT1", Value = "0", Timestamp = 0 }
             };
 
             foreach (var p in tempParams)
             {
-                _parameters.Add(p.Key, p);
+                _parameters.Add(p.Name, p);                
             }
         }
 
@@ -163,8 +148,28 @@ namespace DemoServer.DataAccess
         {
             try
             {
-                var timeStamp = $"{DateTime.UtcNow.Subtract(_unixTimeStart).TotalMilliseconds:.0}";
+                var timeStamp = DateTime.UtcNow.Subtract(_unixTimeStart).TotalMilliseconds;
 
+                foreach (var item in _parameters)
+                {
+                    switch (item.Key)
+                    {
+                        case "date_utc":
+                            var newDate = DateTime.UtcNow.ToString("yyyy-MM-dd");
+                            UpdateItem("date_utc", newDate, (long)timeStamp);
+                            break;
+                        case "time_utc":
+                            var newTime = DateTime.UtcNow.ToString("HH:mm:ss.ff");
+                            UpdateItem("time_utc", newTime, (long)timeStamp);
+                            break;
+                        default:
+                            UpdateItem(item.Key, item.Value.Value, (long)timeStamp);
+                            break;
+                    }
+
+                }
+
+                // Untersetzungsgestriebe
                 switch (pos++ % 10)
                 {
                     case 1:
@@ -195,10 +200,7 @@ namespace DemoServer.DataAccess
                         // Update a value
                         break;
                     default:
-                        var newDate = DateTime.UtcNow.ToString("yy-MM-dd");
-                        var newTime = DateTime.UtcNow.ToString("HH:mm:ss.ff");
-                        UpdateItem("Date", newDate, "1", timeStamp);
-                        UpdateItem("TimeGMT", newTime, "1", timeStamp);
+                        
                         break;
                 }
             }
@@ -215,7 +217,7 @@ namespace DemoServer.DataAccess
         /// <param name="value"></param>
         /// <param name="state"></param>
         /// <param name="timeStamp"></param>
-        private void UpdateItem(string key, string value, string state, string timeStamp)
+        private void UpdateItem(string key, object value, long timeStamp)
         {
             if (!_parameters.ContainsKey(key))
             {
@@ -224,13 +226,29 @@ namespace DemoServer.DataAccess
 
             var item = _parameters[key];
             item.Timestamp = timeStamp;
-            item.Value = value;
-            item.State = state;
+            item.Value = value;            
 
             foreach (var client in _webSocketClientList)
             {
                 client.UpdateParameter(item);
+                //client.UpdateParameter(new AvionicParameterData { Name = item.Name, Timestamp = item.Timestamp, Value = item.Value });
             }
         }
+    }
+
+    public record struct AvionicParameterData
+    {
+        
+        public string Name { get; init; }
+
+        
+        public object? Value { get; set; }
+
+        
+        public long? Timestamp { get; set; }
+
+        
+        
+        public bool? Settable { get; set; }
     }
 }
