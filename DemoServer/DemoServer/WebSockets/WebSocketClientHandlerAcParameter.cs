@@ -22,9 +22,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Timer = System.Timers.Timer;
 
-namespace DemoServer.Websocket
+namespace DemoServer.WebSockets
 {
-    public class WebSocketClientHandler : IWebSocketClientHandler
+    public class WebSocketClientHandlerAcParameter : IWebSocketClientHandlerAcParameter
     {
         private readonly ILogger _logger;
         private readonly IAvionicDataSource _avionicData;
@@ -42,19 +42,19 @@ namespace DemoServer.Websocket
         private CancellationTokenSource _tokenSource;
         private JsonSerializerOptions _serializerOption;
 
-        public WebSocketClientHandler(ILogger<WebSocketClientHandler> logger, IAvionicDataSource avionicData)
+        public WebSocketClientHandlerAcParameter(ILogger<WebSocketClientHandlerAcParameter> logger, IAvionicDataSource avionicData)
         {
-            _logger = logger;            
+            _logger = logger;
             _avionicData = avionicData;
-            _serializerOption = new JsonSerializerOptions() 
+            _serializerOption = new JsonSerializerOptions()
             {
                 DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
                 PropertyNameCaseInsensitive = true
             };
-            
+
             // Set and Start Timeout Timer for request
-            _timerTimeOut = new Timer(10000);            
-            _timerTimeOut.Elapsed += TimeOutElapsed;      
+            _timerTimeOut = new Timer(10000);
+            _timerTimeOut.Elapsed += TimeOutElapsed;
             _timerTimeOut.Start();
 
             // Init the timer for now.
@@ -282,7 +282,7 @@ namespace DemoServer.Websocket
                 CloseWebSocketAsync(WebSocketSubscriptionErrorCode.TimeOut).Wait();
             }
         }
-        
+
         private void _timerContinousDeliveryElapsed(object? sender, ElapsedEventArgs e)
         {
             SendData(new AvionicParameters() { Parameters = _parameterBuffer.Values.ToArray() });
@@ -297,7 +297,7 @@ namespace DemoServer.Websocket
         {
             try
             {
-                _logger.LogWarning($"Closing connection due to: {reason}");            
+                _logger.LogWarning($"Closing connection due to: {reason}");
                 await _socket.CloseAsync((WebSocketCloseStatus)reason, reason.ToString(), _tokenSource.Token);
             }
             catch (Exception)
@@ -314,8 +314,8 @@ namespace DemoServer.Websocket
         /// <returns></returns>
         private async Task SendOk(string[]? unknownParameters)
         {
-            var response = new WebSocketResponse() 
-            { 
+            var response = new WebSocketResponse()
+            {
                 ReturnCode = "Ok"
             };
 
@@ -324,7 +324,7 @@ namespace DemoServer.Websocket
                 response.UnKnownParameters = unknownParameters;
             }
 
-            SendData(response);            
+            SendData(response);
         }
 
         /// <summary>
@@ -423,7 +423,7 @@ namespace DemoServer.Websocket
                     }
 
                     // To compare, we need to stringalize it, to make it compareable
-                    if (!string.Equals(_parameterBuffer[data.Name].Value?.ToString(),data.Value?.ToString()))
+                    if (!string.Equals(_parameterBuffer[data.Name].Value?.ToString(), data.Value?.ToString()))
                     {
                         _parameterBuffer[data.Name] = data;
                         SendData(new AvionicParameters() { Parameters = new AvionicParameter[] { data } });
@@ -449,7 +449,7 @@ namespace DemoServer.Websocket
                     break;
                 default:
                     break;
-            }            
+            }
         }
 
         public void Dispose()

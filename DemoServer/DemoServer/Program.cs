@@ -1,6 +1,6 @@
 using DemoServer.DataAccess;
 using DemoServer.Formatter;
-using DemoServer.Websocket;
+using DemoServer.WebSockets;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,7 +13,11 @@ builder.Services.AddControllers(
         opt.OutputFormatters.Insert(0, new AvionicParameterOutputFormatter());
     })
     .AddXmlSerializerFormatters()
-    .AddJsonOptions(options => options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull) ;
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -21,9 +25,12 @@ builder.Services.AddSwaggerGen();
 //Add a single Data Source service to the Service Repository
 builder.Services.AddSingleton<IAvionicDataSource, AvionicDataSource>();
 
+// Define the Acars Emulator to be used for the ACARS interface.
+builder.Services.AddSingleton<IAcarsMessageService, AcarsMessageServiceEmulator>();
+
 // Add a WebSocketClientHandler as a "Transient" Service to the Service Repository,
 // which means, that it delivers a separate Handler for each client.
-builder.Services.AddTransient<IWebSocketClientHandler, WebSocketClientHandler>();
+builder.Services.AddTransient<IWebSocketClientHandlerAcParameter, WebSocketClientHandlerAcParameter>();
 
 var app = builder.Build();
 

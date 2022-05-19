@@ -12,7 +12,7 @@ using System.Text.Json.Serialization;
 using System.Timers;
 using DemoServer.Controllers;
 using DemoServer.Models;
-using DemoServer.Websocket;
+using DemoServer.WebSockets;
 using Microsoft.Extensions.Logging;
 using Timer = System.Timers.Timer;
 
@@ -22,7 +22,7 @@ namespace DemoServer.DataAccess
     {
         private readonly ILogger<AircraftParameterController> _logger;
         private readonly Timer _avcTimer;
-        private readonly List<IWebSocketClientHandler> _webSocketClientList = new List<IWebSocketClientHandler>();
+        private readonly List<IWebSocketClientHandlerAcParameter> _webSocketClientList = new List<IWebSocketClientHandlerAcParameter>();
         private readonly DateTime _unixTimeStart = new DateTime(1970, 1, 1);        
         private readonly Dictionary<string, AvionicParameter> _parameters = new Dictionary<string, AvionicParameter>();
 
@@ -50,13 +50,13 @@ namespace DemoServer.DataAccess
         }
 
         /// <inheritdoc />
-        public void Subscribe(IWebSocketClientHandler clientHandler)
+        public void Subscribe(IWebSocketClientHandlerAcParameter clientHandler)
         {
             _webSocketClientList.Add(clientHandler);
         }
 
         /// <inheritdoc />
-        public void Unsubscribe(IWebSocketClientHandler clientHandler)
+        public void Unsubscribe(IWebSocketClientHandlerAcParameter clientHandler)
         {
             if (_webSocketClientList.Contains(clientHandler))
             {

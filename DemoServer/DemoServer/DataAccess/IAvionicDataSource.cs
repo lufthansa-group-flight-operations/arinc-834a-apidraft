@@ -6,7 +6,7 @@
 //
 
 using DemoServer.Models;
-using DemoServer.Websocket;
+using DemoServer.WebSockets;
 
 namespace DemoServer.DataAccess
 {
@@ -17,9 +17,9 @@ namespace DemoServer.DataAccess
         /// </summary>
         AvionicParameter[] KnownParams { get; }
 
-        void Subscribe(IWebSocketClientHandler clientHandler);
+        void Subscribe(IWebSocketClientHandlerAcParameter clientHandler);
 
-        void Unsubscribe(IWebSocketClientHandler clientHandler);
+        void Unsubscribe(IWebSocketClientHandlerAcParameter clientHandler);
 
         /// <summary>
         /// Gets all AvionicParameters.

@@ -11,7 +11,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using DemoServer.DataAccess;
 using DemoServer.Models;
-using DemoServer.Websocket;
+using DemoServer.WebSockets;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -125,7 +125,7 @@ namespace DemoServer.Controllers
                 var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync("adif-1");
 
                 // Retrieve a WebSocketHandler from Service-Repository
-                var client = _serviceProvider.GetService<IWebSocketClientHandler>();
+                var client = _serviceProvider.GetService<IWebSocketClientHandlerAcParameter>();
 
                 // Handover the established websocketconnection to the clientHandler and Start it                
                 await client.StartListen(webSocket, HttpContext);
