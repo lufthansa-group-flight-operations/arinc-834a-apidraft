@@ -1,12 +1,14 @@
-﻿using System.Net.WebSockets;
+﻿using DemoServer.Models;
+using System.Net.WebSockets;
 
 namespace DemoServer.Services.acars
 {
     public interface IWebSocketClientHandlerAcars
     {
-        void ReceiveDownlinkUpdate(object msg);
+        void ReceiveDownlinkUpdate(AcarsDownlink msg, bool includePayload = false);
         void Dispose();
         Task StartListen(WebSocket webSocket, HttpContext httpContext);
-        void ReceiveUplinkUpdate(object msg);
+        void ReceiveUplinkUpdate(AcarsUplink msg, bool includePayload = false);
+        void ReceiveStatusUpdate(object msg);
     }
 }

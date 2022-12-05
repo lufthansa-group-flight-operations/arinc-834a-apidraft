@@ -8,7 +8,7 @@ namespace DemoServer.Models
         public string Selflink { get; set; }
 
         [JsonPropertyName("updated")]
-        public string  Updated { get; set; }
+        public DateTime  Updated { get; set; }
 
         [JsonPropertyName("isAnyAvailable")]
         public bool IsAnyAvailable { get; set; }

@@ -24,7 +24,9 @@ namespace DemoServer.Services.acars
             _serializerOption = new JsonSerializerOptions()
             {
                 DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-                PropertyNameCaseInsensitive = true
+                PropertyNameCaseInsensitive = true,
+                Converters =
+                { new JsonStringEnumConverter()}
             };
         }
 
@@ -37,22 +39,39 @@ namespace DemoServer.Services.acars
         /// Receive here the message from the ACARS service. This Method is called due to the subscription.
         /// </summary>
         /// <param name="msg"></param>
-        public void ReceiveDownlinkUpdate(object msg)
+        public void ReceiveDownlinkUpdate(AcarsDownlink msg, bool includePayload = false)
         {
-            if (_context.Request.Path.ToString().Contains("downlink"))
+            // If this is an update of an created message, inform all clients
+            if (msg.State == AcarsDownlinkState.queued)
             {
-                SendData(msg);
+                includePayload = true;
+            }
+            
+            if (includePayload)
+            {
+                SendData(new AcarsEnvelope("acars_downlink_update", msg));
+                return;
+            }
+
+            // Remove the payload and send data.
+            msg.Payload = null;
+            SendData(new AcarsEnvelope("acars_downlink_update", msg));
+
+        }
+
+        public void ReceiveUplinkUpdate(AcarsUplink msg, bool includePayload = false)
+        {
+            // Filter depricated since one subscription url for all
+            //if (_context.Request.Path.ToString().Contains("uplink"))
+            {
+                SendData(new AcarsEnvelope("acars_uplink_update", msg));
             }
         }
 
-        public void ReceiveUplinkUpdate(object msg)
+        public void ReceiveStatusUpdate(object msg)
         {
-            if (_context.Request.Path.ToString().Contains("uplink"))
-            {
-                SendData(msg);
-            }
+            //SendData(new AcarsEnvelope("acars_status_update", msg));
         }
-
 
         public async Task StartListen(WebSocket webSocket, HttpContext httpContext)
         {
@@ -62,6 +81,9 @@ namespace DemoServer.Services.acars
 
             // Subscribe to the ACARS messaging service
             _acars.Subscribe(this);
+
+            // TODO: actually handle subscription correctly
+            await Subscribe();
 
             await StartEventLoop();
         }
@@ -117,6 +139,22 @@ namespace DemoServer.Services.acars
         {
             // TODO
             // Imagine the subscription would have beeen handled here.
+            // Send all up- and downlinks to the client
+            
+        }
+
+        private async Task Subscribe()
+        {
+            foreach (var uplink in _acars.Uplinks)
+            {
+                ReceiveUplinkUpdate(uplink, true);
+            }
+
+            foreach (var downlink in _acars.Downlinks)
+            {
+                ReceiveDownlinkUpdate(downlink, true);
+            }
+            return;
         }
 
         private async Task CloseWebSocketAsync(WebSocketSubscriptionErrorCode reason)

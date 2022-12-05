@@ -156,7 +156,7 @@ namespace DemoServer.Controllers
             if (includeContent)
             {
                 //return Ok(result);
-                return Ok(new AcarsEnvelope() { message = result, type = result.GetType().ToString() });
+                return Ok(new AcarsEnvelope() { Message = result, Type = "acars_downlink" });
             }
 
             // if content should be exlcuded, remove Data from response
@@ -166,7 +166,7 @@ namespace DemoServer.Controllers
                 buffer.Add(downlink with { Payload = null });
             }
             result.Downlinks = buffer.ToArray();
-            return Ok(new AcarsEnvelope() { message = result, type = result.GetType().ToString() });
+            return Ok(new AcarsEnvelope() { Message = result, Type = "acars_downlink_update" });
 
         }
         // HACK OFF

@@ -1,17 +1,19 @@
 ﻿using DemoServer.Models;
 using DemoServer.Services.acars;
+using System.Data;
 
 namespace DemoServer.DataAccess
 {
     public class AcarsMessageServiceEmulator : IAcarsMessageService
     {
         private readonly ILogger<AcarsMessageServiceEmulator> _logger;
-        private List<IWebSocketClientHandlerAcars> _clients;
+        private List<IWebSocketClientHandlerAcars> _clients;        
         private int uplinkIdCounter, downlinkIdCounter = 0;
+        private AcarsStatus acarsStatus;
+        private System.Timers.Timer timerStatusUpdate;
 
         public List<AcarsUplink> Uplinks { get; set; }
         public List<AcarsDownlink> Downlinks { get; set; }    
-
 
         public AcarsMessageServiceEmulator(ILogger<AcarsMessageServiceEmulator> logger)
         {
@@ -28,24 +30,42 @@ namespace DemoServer.DataAccess
             });
 
             AddUplink();
+
+            // Status Emulation            
+            SetTimer();
         }
+
+        private void SetTimer()
+        {
+            timerStatusUpdate = new System.Timers.Timer(2000);
+            timerStatusUpdate.Elapsed += OnTimerStatusElapsed;
+            timerStatusUpdate.AutoReset = true;
+            timerStatusUpdate.Enabled = true;
+        }
+
+        private void OnTimerStatusElapsed(object? sender, System.Timers.ElapsedEventArgs e)
+        {
+            foreach (var client in _clients)
+            {
+                client.ReceiveStatusUpdate(GetStatus());
+                    
+            }
+        }       
 
         public AcarsStatus GetStatus()
         {
             return new AcarsStatus()
             {
-                Updated = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss.fffZ"),
+                //Updated = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss.fffZ"),
+                Updated = DateTime.UtcNow,
                 IsAnyAvailable = true,
                 Channels = new ChannelInfo[]
                 {
-                    new ChannelInfo(){Name = "VHF", IsAvailable = true },
-                    new ChannelInfo(){Name = "HF", IsAvailable = false },
-                    new ChannelInfo(){Name = "SATCOM", IsAvailable = true },
-                    new ChannelInfo(){Name = "GATELINK", IsAvailable = false },
-                    new ChannelInfo(){Name = "ANY_OTHER", IsAvailable = false }
+                    new ChannelInfo(){Name = "acars_vhf", IsAvailable = true },
+                    new ChannelInfo(){Name = "acars_satcom", IsAvailable = false },                    
+                    new ChannelInfo(){Name = "acars_fms", IsAvailable = false },                    
                 }
             };
-
         }
 
         public AcarsDownlink? SendDownlink(AcarsDownlinkRequest request)
@@ -80,7 +100,7 @@ namespace DemoServer.DataAccess
             uplink.DataSize = uplink.Payload.Length;
             
             Uplinks.Add(uplink);
-            PublishUplinkToClientHander(uplink);
+            PublishUplinkToClientHandler(uplink);
         }
 
         public void DeleteUplinks()
@@ -88,7 +108,7 @@ namespace DemoServer.DataAccess
             foreach (var item in Uplinks)
             {
                 item.State = AcarsUplinkState.deleted;
-                PublishUplinkToClientHander(item);
+                PublishUplinkToClientHandler(item);
             }
             Uplinks.Clear();
         }
@@ -124,7 +144,7 @@ namespace DemoServer.DataAccess
             if (itemToRemove != null)
             {
                 itemToRemove.State = AcarsUplinkState.deleted;                
-                PublishUplinkToClientHander(itemToRemove);
+                PublishUplinkToClientHandler(itemToRemove);
                 Uplinks.Remove(itemToRemove);
                 return true;
             }
@@ -146,7 +166,7 @@ namespace DemoServer.DataAccess
             }
         }
 
-        private void PublishDownlinkToClientHandlers(object msg)
+        private void PublishDownlinkToClientHandlers(AcarsDownlink msg)
         {
             foreach (var client in _clients)
             {
@@ -154,7 +174,7 @@ namespace DemoServer.DataAccess
             }
         }
 
-        private void PublishUplinkToClientHander(object msg)
+        private void PublishUplinkToClientHandler(AcarsUplink msg)
         {
             foreach (var  client in _clients)
             {
