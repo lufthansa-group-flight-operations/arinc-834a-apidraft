@@ -37,7 +37,7 @@ namespace DemoServer.DataAccess
 
         private void SetTimer()
         {
-            timerStatusUpdate = new System.Timers.Timer(2000);
+            timerStatusUpdate = new System.Timers.Timer(5000);
             timerStatusUpdate.Elapsed += OnTimerStatusElapsed;
             timerStatusUpdate.AutoReset = true;
             timerStatusUpdate.Enabled = true;

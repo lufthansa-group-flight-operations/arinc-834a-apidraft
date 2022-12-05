@@ -70,7 +70,7 @@ namespace DemoServer.Services.acars
 
         public void ReceiveStatusUpdate(object msg)
         {
-            //SendData(new AcarsEnvelope("acars_status_update", msg));
+            SendData(new AcarsEnvelope("acars_status_update", msg));
         }
 
         public async Task StartListen(WebSocket webSocket, HttpContext httpContext)
