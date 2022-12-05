@@ -11,9 +11,11 @@ namespace DemoServer.Models
         public int? Limit { get; set; }
 
         [JsonPropertyName("start")]
+        [JsonIgnore]
         public int Start { get; set; }
 
         [JsonPropertyName("total")]
+        [JsonIgnore]
         public int? Total { get; set; }
 
         [JsonPropertyName("downlinks")]

@@ -18,7 +18,7 @@ using Timer = System.Timers.Timer;
 
 namespace DemoServer.DataAccess
 {
-    public class AvionicDataSource : IAvionicDataSource, IDisposable
+    public class AvionicDataSourceEmulator : IAvionicDataSource, IDisposable
     {
         private readonly ILogger<AircraftParameterController> _logger;
         private readonly Timer _avcTimer;
@@ -31,10 +31,10 @@ namespace DemoServer.DataAccess
         public AvionicParameter[] KnownParams { get; private set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AvionicDataSource"/> class.
+        /// Initializes a new instance of the <see cref="AvionicDataSourceEmulator"/> class.
         /// </summary>
         /// <param name="logger"></param>
-        public AvionicDataSource(ILogger<AircraftParameterController> logger)
+        public AvionicDataSourceEmulator(ILogger<AircraftParameterController> logger)
         {
             _logger = logger;
 
@@ -127,7 +127,7 @@ namespace DemoServer.DataAccess
                 new AvionicParameter { Name = "destination", Value = "KFMY", Timestamp = 15684651325 },
                 new AvionicParameter { Name = "dist_to_dest", Value = "120", Timestamp = 15684651325 },
                 new AvionicParameter { Name = "dist_to_wypt", Value = "20", Timestamp = 15684651325 },
-                new AvionicParameter { Name = "time_to_dest", Value = (int)60, Timestamp = 15684651325 },
+                new AvionicParameter { Name = "time_to_dest", Value = "60 ", Timestamp = 15684651325 },
                 new AvionicParameter { Name = "time_to_waypt", Value = "10", Timestamp = 15684651325 },
                 new AvionicParameter { Name = "flight_no", Value = "", Timestamp = 0 },
                 new AvionicParameter { Name = "EGT1", Value = "0", Timestamp = 0 }

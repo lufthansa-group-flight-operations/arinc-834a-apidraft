@@ -19,7 +19,7 @@ namespace DemoServer.Models
         public string Reason { get; set; }
 
         [JsonPropertyName("unknownParameters")]
-        public string[] UnKnownParameters { get; set; }
+        public string[]? UnKnownParameters { get; set; }
     }
 
     public enum WebSocketResponseCode
@@ -35,6 +35,6 @@ namespace DemoServer.Models
         BadRequest = 1008,
         TooLarge = 1009,
         InvalidPeriod = 4010,
-        AllunknownParameters = 4011
+        UnknownParameters = 4011
     }
 }

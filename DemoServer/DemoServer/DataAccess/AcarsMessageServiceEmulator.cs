@@ -1,5 +1,5 @@
 ﻿using DemoServer.Models;
-using DemoServer.WebSockets;
+using DemoServer.Services.acars;
 
 namespace DemoServer.DataAccess
 {
@@ -23,13 +23,8 @@ namespace DemoServer.DataAccess
             // Fill up some data
             downlinkIdCounter++;
             SendDownlink(new AcarsDownlinkRequest()
-            {
-                Id = downlinkIdCounter,
-                MediaSelect = AcarsMediaSelect.MEDIA_ANY,
-                Data = "VGVzdGRvd25saW5rICMx",
-                DataSize = 20,
-                DataType = AcarsDataType.ASCII,
-                LifeTime = 0,
+            {   
+                Payload = "Test Downlink, Please ignore.",
             });
 
             AddUplink();
@@ -56,13 +51,16 @@ namespace DemoServer.DataAccess
         public AcarsDownlink? SendDownlink(AcarsDownlinkRequest request)
         {
             downlinkIdCounter++;
-            var dl = new AcarsDownlink(request);            
-            dl.Id = downlinkIdCounter;
-            dl.Created = DateTime.UtcNow.ToString("yyyy-mm-ddTHH:mm:ss:fffZ");
-            dl.State = AcarsDownlinkState.WAITING;
-            Downlinks.Add(dl);
-            Task.Run(() => DownlinkEmulation(dl.Id));
-            return dl;
+            var downlink = new AcarsDownlink(request);
+            downlink.DataSize = downlink.Payload.Length;
+            downlink.Id = Guid.NewGuid();
+            downlink.TimeStamp = DateTime.UtcNow;
+            downlink.State = AcarsDownlinkState.queued;
+            downlink.StatusUpateTimeStamp = DateTime.UtcNow;
+            PublishDownlinkToClientHandlers(downlink);
+            Downlinks.Add(downlink);
+            Task.Run(() => DownlinkEmulation(downlink.Id));
+            return downlink;
             
         }
 
@@ -71,45 +69,62 @@ namespace DemoServer.DataAccess
             uplinkIdCounter++;
             var uplink = new AcarsUplink()
             {
-                Id = uplinkIdCounter,
-                Mfi = "AB",
+                Id = Guid.NewGuid(),
+                Mti = "AB",
                 DataType = AcarsDataType.ASCII,
-                TimeStamp = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss:fff"),
-                
+                //TimeStamp = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss:fff"),
+                TimeStamp = DateTime.UtcNow
+
             };
-            uplink.SetPlainTextToBas64($"Testuplink #{uplink.Id}");
-            uplink.DataSize = uplink.Data.Length;
+            uplink.Payload = "EDDE 051700Z 0518/0618 25006KT 3500 BR BKN015 BECMG 0519/0523 BKN001 TEMPO 0520/0602 0700 FG BECMG 0601/0605 8000 BKN015 TEMPO 0605/0618 3500 -RASN BKN010";
+            uplink.DataSize = uplink.Payload.Length;
             
             Uplinks.Add(uplink);
-            PublishToClientHandlers(uplink);
+            PublishUplinkToClientHander(uplink);
         }
 
         public void DeleteUplinks()
         {
+            foreach (var item in Uplinks)
+            {
+                item.State = AcarsUplinkState.deleted;
+                PublishUplinkToClientHander(item);
+            }
             Uplinks.Clear();
         }
 
         public void DeleteDownlinks()
         {
+            foreach (var item in Downlinks)
+            {
+                item.State = AcarsDownlinkState.deleted;
+                item.StatusUpateTimeStamp = DateTime.UtcNow;
+                PublishDownlinkToClientHandlers(item);
+            }
             Downlinks.Clear();
         }
 
-        public bool DeleteDownlink(int id)
+        public bool DeleteDownlink(Guid id)
         {
             var itemToRemove = Downlinks.SingleOrDefault(dl => dl.Id == id);
             if (itemToRemove != null)
             {
+                itemToRemove.State = AcarsDownlinkState.deleted;
+                itemToRemove.StatusUpateTimeStamp = DateTime.UtcNow;
+                PublishDownlinkToClientHandlers(itemToRemove);
                 Downlinks.Remove(itemToRemove);
                 return true;
             }
             return false;
         }
 
-        public bool DeleteUplink(int id)
+        public bool DeleteUplink(Guid id)
         {
             var itemToRemove = Uplinks.SingleOrDefault(ul => ul.Id == id);
             if (itemToRemove != null)
             {
+                itemToRemove.State = AcarsUplinkState.deleted;                
+                PublishUplinkToClientHander(itemToRemove);
                 Uplinks.Remove(itemToRemove);
                 return true;
             }
@@ -131,7 +146,7 @@ namespace DemoServer.DataAccess
             }
         }
 
-        private void PublishToClientHandlers(object msg)
+        private void PublishDownlinkToClientHandlers(object msg)
         {
             foreach (var client in _clients)
             {
@@ -139,23 +154,32 @@ namespace DemoServer.DataAccess
             }
         }
 
-        private async Task DownlinkEmulation(int id)
+        private void PublishUplinkToClientHander(object msg)
+        {
+            foreach (var  client in _clients)
+            {
+                client.ReceiveUplinkUpdate(msg);
+            }
+        }
+
+        private async Task DownlinkEmulation(Guid id)
         {
             // Emulate a positive downlink
             await Task.Delay(2000);
-            await UpdateDownlinkStatus(id, AcarsDownlinkState.TRANSMITTING);            
+            await UpdateDownlinkStatus(id, AcarsDownlinkState.cmf_transfer);            
             await Task.Delay(2000);
-            await UpdateDownlinkStatus(id, AcarsDownlinkState.SENT);
+            await UpdateDownlinkStatus(id, AcarsDownlinkState.cmf_ack);
             await Task.Delay(2000);
-            await UpdateDownlinkStatus(id, AcarsDownlinkState.ACKNOWLEDGED);
+            await UpdateDownlinkStatus(id, AcarsDownlinkState.dsp_ack);
         }
 
-        private async Task UpdateDownlinkStatus(int id, AcarsDownlinkState state)
+        private async Task UpdateDownlinkStatus(Guid id, AcarsDownlinkState state)
         {
             _logger.LogInformation($"Change Downlink status of ID: {id} to: {state}");
             var downlink = Downlinks.First(dl => dl.Id == id);
             downlink.State = state;
-            PublishToClientHandlers(downlink);
+            downlink.StatusUpateTimeStamp = DateTime.UtcNow;
+            PublishDownlinkToClientHandlers(downlink);
         }
     }
 }

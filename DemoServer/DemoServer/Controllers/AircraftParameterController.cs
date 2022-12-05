@@ -53,6 +53,7 @@ namespace DemoServer.Controllers
         [Produces("application/json", "text/avionic")]
         public async Task<IActionResult> GetParameters([FromQuery(Name = "params")] List<string> paramsRequest)
         {
+            _logger.LogDebug($"Requested parameter list from [{HttpContext.Connection.RemoteIpAddress}]");
 
             // If none paramters are requested, just return a list of the known paramter names, and if they are settable.
             if (paramsRequest.Count == 0)
@@ -119,10 +120,27 @@ namespace DemoServer.Controllers
             if (HttpContext.WebSockets.IsWebSocketRequest)
             {
                 _logger.LogDebug($"Websocket request for {HttpContext.Request.Path} " +
-                    $"with SubProtocols{HttpContext.WebSockets.WebSocketRequestedProtocols}");                
+                    $"with SubProtocols{HttpContext.WebSockets.WebSocketRequestedProtocols}");
 
-                // Accept the WebSocket connection and return the client that 'adif-1' subprotocol is used.
-                var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync("adif-1");
+                System.Net.WebSockets.WebSocket webSocket = null;
+
+                if (HttpContext.WebSockets.WebSocketRequestedProtocols.Count > 0)
+                {
+                    if (HttpContext.WebSockets.WebSocketRequestedProtocols.Contains("adif-1"))
+                    {
+                        // Accept the WebSocket connection and return the client that 'adif-1' subprotocol is used.
+                        webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync("adif-1");
+                    }
+                    else
+                    {                        
+                        return new BadRequestResult();
+                    }
+                }
+                else
+                {
+                    webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
+                }
+                
 
                 // Retrieve a WebSocketHandler from Service-Repository
                 var client = _serviceProvider.GetService<IWebSocketClientHandlerAcParameter>();

@@ -1,4 +1,5 @@
 ﻿using DemoServer.Models;
+using DemoServer.Services.acars;
 
 namespace DemoServer.DataAccess
 {
@@ -11,8 +12,10 @@ namespace DemoServer.DataAccess
 
         void DeleteUplinks();
         void DeleteDownlinks();
-        bool DeleteDownlink(int id);
-        bool DeleteUplink(int id);
+        bool DeleteDownlink(Guid id);
+        bool DeleteUplink(Guid id);
         AcarsDownlink? SendDownlink(AcarsDownlinkRequest request);
+        void Subscribe(IWebSocketClientHandlerAcars client);
+        void Unsubscribe(IWebSocketClientHandlerAcars client);
     }
 }

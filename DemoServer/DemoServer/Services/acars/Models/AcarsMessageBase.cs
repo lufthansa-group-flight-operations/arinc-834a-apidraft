@@ -5,17 +5,21 @@ namespace DemoServer.Models
 {
     public record AcarsMessageBase
     {
-        [JsonPropertyName("id")]
-        public int Id { get; set; }
+        //[JsonPropertyName("id")]
+        [JsonIgnore]
+        public Guid Id { get; set; }
 
         [JsonPropertyName("selfLink")]
-        public string SelfLink { get; set; }
+        public string? SelfLink { get; set; }
 
-        [JsonPropertyName("mfi")]
-        public string? Mfi { get; set; }
+        [JsonPropertyName("timestamp")]
+        public DateTime TimeStamp { get; set; }
 
-        [JsonPropertyName("mediaSelect")]
-        public AcarsMediaSelect MediaSelect { get; set; }
+        [JsonPropertyName("mti")]
+        public string? Mti { get; set; }
+
+        //[JsonPropertyName("mediaSelect")]
+        //public AcarsMediaSelect MediaSelect { get; set; }
 
         [JsonPropertyName("lifetime")]
         public int LifeTime { get; set; }
@@ -26,12 +30,13 @@ namespace DemoServer.Models
         [JsonPropertyName("dataSize")]
         public int DataSize { get; set; }
 
-        [JsonPropertyName("data")]
-        public string Data { get; set; }
+        [JsonPropertyName("payload")]
+        public string Payload { get; set; }
+        //public string Payload { get; set; }
 
         public string ToBase64String()
         {
-            return Convert.ToBase64String(Encoding.UTF8.GetBytes(Data));
+            return Convert.ToBase64String(Encoding.UTF8.GetBytes(Payload));
         }
 
         internal bool Validate()

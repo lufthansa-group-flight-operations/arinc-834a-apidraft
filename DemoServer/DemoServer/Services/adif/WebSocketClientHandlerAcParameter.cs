@@ -18,11 +18,12 @@ using System.Threading.Tasks;
 using System.Timers;
 using DemoServer.DataAccess;
 using DemoServer.Models;
+using DemoServer.WebSockets;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Timer = System.Timers.Timer;
 
-namespace DemoServer.WebSockets
+namespace DemoServer.Services.adif
 {
     public class WebSocketClientHandlerAcParameter : IWebSocketClientHandlerAcParameter
     {
@@ -109,6 +110,8 @@ namespace DemoServer.WebSockets
                             break;
                         case WebSocketMessageType.Binary:
                             msg = BitConverter.ToString(buffer).Replace('-', ':');
+                            _logger.LogInformation($"Message [{msg}] received");
+                            await CloseWebSocketAsync(WebSocketSubscriptionErrorCode.BadFormat);
                             break;
                         case WebSocketMessageType.Close:
                             _logger.LogDebug("Websocket close received");
@@ -170,20 +173,22 @@ namespace DemoServer.WebSockets
             var (known, unknown) = await CheckParamters(subscribeRequest.Arguments.ParameterNames);
 
             // If no known paramters found, return error and close connection
-            if (known.Length == 0)
+            //if (known.Length == 0)
+            // Changed to if any parameter is not known return error and close.
+            if (unknown.Length > 0)
             {
-                SendError(WebSocketSubscriptionErrorCode.AllunknownParameters);
-                await CloseWebSocketAsync(WebSocketSubscriptionErrorCode.AllunknownParameters);
+                SendError(WebSocketSubscriptionErrorCode.UnknownParameters, unknown);
+                await CloseWebSocketAsync(WebSocketSubscriptionErrorCode.UnknownParameters);
                 return;
             }
 
             // Otherwise, check what subscripton method is requested
             switch (subscribeRequest.Arguments.Type.ToLower())
             {
-                case "on change":
+                case "on_change":
                     _subscriptionType = WebSocketAvionicsParameterSubscriptionType.OnChange;
                     break;
-                case "on update":
+                case "on_update":
                     _subscriptionType = WebSocketAvionicsParameterSubscriptionType.OnUpdate;
                     break;
                 case "continuous":
@@ -331,12 +336,13 @@ namespace DemoServer.WebSockets
         /// Sends an error response with the given error reason.
         /// </summary>
         /// <param name="reason">Reason enum </param>
-        private void SendError(WebSocketSubscriptionErrorCode reason)
+        private void SendError(WebSocketSubscriptionErrorCode reason, string[]? unknownParameters = null)
         {
             var errorResponse = new WebSocketResponse()
             {
                 ReturnCode = WebSocketResponseCode.Error.ToString(),
-                Reason = reason.ToString()
+                Reason = reason.ToString(),
+                UnKnownParameters = unknownParameters
             };
             SendData(JsonSerializer.Serialize(errorResponse, _serializerOption));
         }
