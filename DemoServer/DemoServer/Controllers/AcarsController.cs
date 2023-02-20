@@ -211,6 +211,8 @@ namespace DemoServer.Controllers
             dlResult.SelfLink = $"{GetSelflink()}/{dlResult.Id}";
             if (dlResult is not null)
             {
+                // Clean up result before sending
+                dlResult.Payload = null;
                 return Ok(dlResult);
             }
             return StatusCode(StatusCodes.Status500InternalServerError);

@@ -49,13 +49,13 @@ namespace DemoServer.Services.acars
             
             if (includePayload)
             {
-                SendData(new AcarsEnvelope("acars_downlink_update", msg));
+                SendData(new AcarsEnvelope("acars_downlink", msg));
                 return;
             }
 
             // Remove the payload and send data.
             msg.Payload = null;
-            SendData(new AcarsEnvelope("acars_downlink_update", msg));
+            SendData(new AcarsEnvelope("acars_downlink", msg));
 
         }
 
@@ -64,13 +64,13 @@ namespace DemoServer.Services.acars
             // Filter depricated since one subscription url for all
             //if (_context.Request.Path.ToString().Contains("uplink"))
             {
-                SendData(new AcarsEnvelope("acars_uplink_update", msg));
+                SendData(new AcarsEnvelope("acars_uplink", msg));
             }
         }
 
         public void ReceiveStatusUpdate(object msg)
         {
-            SendData(new AcarsEnvelope("acars_status_update", msg));
+            SendData(new AcarsEnvelope("acars_status", msg));
         }
 
         public async Task StartListen(WebSocket webSocket, HttpContext httpContext)
@@ -154,6 +154,8 @@ namespace DemoServer.Services.acars
             {
                 ReceiveDownlinkUpdate(downlink, true);
             }
+
+            ReceiveStatusUpdate(_acars.GetStatus());
             return;
         }
 

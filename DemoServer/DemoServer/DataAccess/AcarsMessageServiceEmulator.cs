@@ -40,7 +40,7 @@ namespace DemoServer.DataAccess
             timerStatusUpdate = new System.Timers.Timer(5000);
             timerStatusUpdate.Elapsed += OnTimerStatusElapsed;
             timerStatusUpdate.AutoReset = true;
-            timerStatusUpdate.Enabled = true;
+            //timerStatusUpdate.Enabled = true;
         }
 
         private void OnTimerStatusElapsed(object? sender, System.Timers.ElapsedEventArgs e)
